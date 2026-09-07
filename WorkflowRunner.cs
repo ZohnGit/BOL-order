@@ -1,5 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BolOrderExporter;
 
@@ -98,11 +103,14 @@ public sealed class WorkflowRunner
             var shipmentId = FirstShipmentId(shipmentsDocument.RootElement);
             if (string.IsNullOrWhiteSpace(shipmentId))
             {
-                throw new InvalidOperationException($"订单 {order.OrderId} 没有可用的 shipmentId，无法继续原工作流。");
+                // Keep the order in the XLSX. Only shipment-derived fields stay empty.
+                rows.AddRange(BuildExportRows(orderDocument.RootElement, default));
             }
-
-            using var shipmentDocument = await _api.GetShipmentAsync(detailToken, shipmentId, cancellationToken);
-            rows.AddRange(BuildExportRows(orderDocument.RootElement, shipmentDocument.RootElement));
+            else
+            {
+                using var shipmentDocument = await _api.GetShipmentAsync(detailToken, shipmentId, cancellationToken);
+                rows.AddRange(BuildExportRows(orderDocument.RootElement, shipmentDocument.RootElement));
+            }
 
             progress.Report(ItemProgress(index + 1, selectedOrders.Count,
                 $"已处理 {orderNumber}/{selectedOrders.Count} 单。"));
