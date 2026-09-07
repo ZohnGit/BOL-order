@@ -29,6 +29,7 @@ jobs:
           --self-contained true
           --output publish/win-x64
           -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
           -p:EnableCompressionInSingleFile=true
           -p:DebugType=None
           -p:DebugSymbols=false
@@ -37,5 +38,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: BolOrderExporter-win-x64
-          path: publish/win-x64/BolOrderExporter.exe
+          path: publish/win-x64/**
           if-no-files-found: error
