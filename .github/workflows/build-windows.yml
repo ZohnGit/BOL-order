@@ -1,0 +1,41 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main", "master" ]
+    tags: [ "v*" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish single-file Windows app
+        run: >-
+          dotnet publish BolOrderExporter.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output publish/win-x64
+          -p:PublishSingleFile=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+
+      - name: Upload Windows application
+        uses: actions/upload-artifact@v4
+        with:
+          name: BolOrderExporter-win-x64
+          path: publish/win-x64/BolOrderExporter.exe
+          if-no-files-found: error
