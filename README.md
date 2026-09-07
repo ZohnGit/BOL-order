@@ -26,6 +26,7 @@
 - 每单处理前等待 1.5 秒。
 - 第 1、16、31……单重新登录获取 Token。
 - Shipment 列表使用第一条 `shipmentId` 获取详情。
+- 如果订单没有 `shipmentId`，保留该订单并继续处理下一单；XLSX 中物流跟踪号留空。
 - `shipmentDateTime` 沿用原工作流，来源为商品的 `latestChangedDateTime`。
 
 ## 直接在 GitHub 打包
@@ -51,6 +52,7 @@ dotnet publish .\BolOrderExporter.csproj `
   --self-contained true `
   --output .\publish\win-x64 `
   -p:PublishSingleFile=true `
+  -p:IncludeNativeLibrariesForSelfExtract=true `
   -p:EnableCompressionInSingleFile=true
 ```
 
